@@ -621,3 +621,219 @@
     const girlQuests = [
       {
         tag: "Right to Bodily Autonomy & POCSO Protection",
+        title: "The Uncomfortable Boundary",
+        desc: "A distant male relative visits during a festival and hugs you in an overly tight, uncomfortable way, whispering: 'Don't tell your mom, it's our affectionate secret.'",
+        choices: [
+          {
+            text: "Stay frozen and pretend everything is fine out of respect for elders.",
+            icon: "⚠️",
+            safe: false,
+            hp: -30,
+            xp: 0,
+            title: "DANGEROUS SECRECY!",
+            lesson: "You are never at fault, and nobody has permission to violate your personal space! Under the POCSO Act, any bad touch or inappropriate secret must be reported."
+          },
+          {
+            text: "Step back firmly, say 'NO', and immediately inform your parents.",
+            icon: "🔥",
+            safe: true,
+            hp: 0,
+            xp: 120,
+            badge: "🔥 Unbreakable Boundary Badge",
+            title: "ABSOLUTE COURAGE!",
+            lesson: "Your body is your territory alone! You have the complete legal and human right to safe touch and immediate family protection."
+          }
+        ]
+      },
+      {
+        tag: "Right to Equal Opportunity & Secondary Education",
+        title: "The Domestic Duty Dilemma",
+        desc: "Your family suggests you stop attending high school after class 10 to take care of full-time cooking and chores while your brother continues private coaching.",
+        choices: [
+          {
+            text: "Give up on your dream career and accept domestic confinement silently.",
+            icon: "❌",
+            safe: false,
+            hp: -25,
+            xp: 0,
+            title: "EQUALITY DENIED!",
+            lesson: "Gender discrimination in education is unconstitutional. Under Article 15 & UNCRC, girls have equal entitlement to full secondary education."
+          },
+          {
+            text: "Involve a mentor or teacher to explain your right to equal higher education.",
+            icon: "📖",
+            safe: true,
+            hp: 0,
+            xp: 130,
+            badge: "📖 Equality Vanguard Medal",
+            title: "FUTURE DEFENDED!",
+            lesson: "Incredible advocacy! You have the right to pursue whatever career and degree you desire. Education has no gender boundary."
+          }
+        ]
+      },
+      {
+        tag: "Right to Digital Privacy & Protection from Cyber Bullying",
+        title: "The Leaked Photo Threat",
+        desc: "A classmate who received a casual selfie from your social media threatens to edit it maliciously and post it on group chats unless you do his homework.",
+        choices: [
+          {
+            text: "Panic and do his homework every week hoping he will delete it.",
+            icon: "🛑",
+            safe: false,
+            hp: -30,
+            xp: 0,
+            title: "BLACKMAIL CYCLE!",
+            lesson: "Giving in to blackmail only increases harassment. Digital extortion and non-consensual image manipulation are serious cyber crimes."
+          },
+          {
+            text: "Capture screenshots as evidence, inform school authorities and call 1930.",
+            icon: "🛡️",
+            safe: true,
+            hp: 0,
+            xp: 140,
+            badge: "🛡️ Digital Sovereign Shield",
+            title: "CYBER CRIME SHIELD!",
+            lesson: "Magnificent move! Under the Information Technology Act, morphing, extortion, and cyber harassment carry severe criminal penalties."
+          }
+        ]
+      },
+      {
+        tag: "Right to Freedom of Movement & Public Safety",
+        title: "The Street Catcalling",
+        desc: "A group of older boys constantly loiters near the coaching center bus stop, making offensive comments and tracking the girls' timings.",
+        choices: [
+          {
+            text: "Stop going to tuition classes completely to avoid the street.",
+            icon: "⚠️",
+            safe: false,
+            hp: -20,
+            xp: 0,
+            title: "FREEDOM CURTAILED!",
+            lesson: "You should never have to sacrifice your education because of street harassers. Public spaces belong to everyone equally."
+          },
+          {
+            text: "Walk in groups, alert the coaching center head, and dial Childline (1098).",
+            icon: "🚨",
+            safe: true,
+            hp: 0,
+            xp: 110,
+            badge: "🚨 Guardian of Public Safety",
+            title: "COMMUNITY PROTECTED!",
+            lesson: "Outstanding vigilance! Stalking and harassment in public transit zones are strictly punishable offenses under IPC 354D."
+          }
+        ]
+      }
+    ];
+
+    // Game Variables
+    let selectedGender = "boy";
+    let activeQuests = boyQuests;
+    let currentIdx = 0;
+    let xp = 0;
+    let hp = 100;
+    let earnedBadges = [];
+
+    function selectGender(gender) {
+      selectedGender = gender;
+      const boyCard = document.getElementById('gender-boy');
+      const girlCard = document.getElementById('gender-girl');
+
+      if (gender === 'boy') {
+        boyCard.classList.add('active');
+        girlCard.classList.remove('active');
+        document.body.className = "boy-theme";
+        document.getElementById('hud-avatar').innerText = "👦";
+      } else {
+        girlCard.classList.add('active');
+        boyCard.classList.remove('active');
+        document.body.className = "girl-theme";
+        document.getElementById('hud-avatar').innerText = "👧";
+      }
+    }
+
+    function startGame() {
+      const nameInput = document.getElementById('player-name').value.trim() || (selectedGender === 'boy' ? 'Alex' : 'Maya');
+      document.getElementById('hud-name').innerText = nameInput;
+
+      activeQuests = (selectedGender === 'boy') ? boyQuests : girlQuests;
+      currentIdx = 0;
+      xp = 0;
+      hp = 100;
+      earnedBadges = [];
+
+      document.getElementById('xp-val').innerText = xp;
+      document.getElementById('hp-val').innerText = hp;
+
+      document.getElementById('start-screen').classList.remove('active');
+      document.getElementById('game-screen').classList.add('active');
+
+      loadQuest();
+    }
+
+    function loadQuest() {
+      const q = activeQuests[currentIdx];
+      document.getElementById('q-tag').innerText = q.tag;
+      document.getElementById('q-title').innerText = `Episode ${currentIdx + 1}: ${q.title}`;
+      document.getElementById('q-desc').innerText = q.desc;
+
+      const container = document.getElementById('choices-box');
+      container.innerHTML = '';
+
+      q.choices.forEach((c) => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.innerHTML = `<span class="choice-icon">${c.icon}</span> <span>${c.text}</span>`;
+        btn.onclick = () => selectChoice(c);
+        container.appendChild(btn);
+      });
+    }
+
+    function selectChoice(c) {
+      xp += c.xp;
+      hp += c.hp;
+      if (hp < 0) hp = 0;
+
+      document.getElementById('xp-val').innerText = xp;
+      document.getElementById('hp-val').innerText = hp;
+
+      if (c.badge && !earnedBadges.includes(c.badge)) {
+        earnedBadges.push(c.badge);
+      }
+
+      const modal = document.getElementById('result-modal');
+      const icon = document.getElementById('res-icon');
+      const title = document.getElementById('res-title');
+      const lesson = document.getElementById('res-lesson');
+
+      icon.innerText = c.safe ? "🌟" : "🛑";
+      title.innerText = c.title;
+      title.style.color = c.safe ? "var(--secondary)" : "#ef4444";
+      lesson.innerText = c.lesson;
+
+      modal.classList.add('active');
+    }
+
+    function nextQuestion() {
+      document.getElementById('result-modal').classList.remove('active');
+      currentIdx++;
+      if (currentIdx < activeQuests.length) {
+        loadQuest();
+      } else {
+        document.getElementById('game-screen').classList.remove('active');
+        document.getElementById('victory-screen').classList.add('active');
+        document.getElementById('badges-list').innerHTML = earnedBadges.join('<br>') || "🌟 Completed Basic Rights Training!";
+      }
+    }
+
+    function restartGame() {
+      document.getElementById('victory-screen').classList.remove('active');
+      document.getElementById('start-screen').classList.add('active');
+    }
+
+    function toggleSos() {
+      const drawer = document.getElementById('sos-drawer');
+      drawer.classList.toggle('active');
+    }
+  </script>
+</body>
+</html>
