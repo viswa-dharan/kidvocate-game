@@ -1,839 +1,243 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Kidvocate: Child Rights Survival RPG</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Titan+One&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #ff007f;
-      --secondary: #00f0ff;
-      --accent: #ffe600;
-      --bg: #0b081d;
-      --card-bg: rgba(22, 17, 49, 0.88);
-      --text: #ffffff;
-      --border-glow: #00f0ff;
-      --hud-gradient: linear-gradient(135deg, #0284c7, #2563eb);
-    }
-
-    body.boy-theme {
-      --primary: #00e5ff;
-      --secondary: #10b981;
-      --accent: #ffea00;
-      --bg: #051329;
-      --card-bg: rgba(10, 29, 61, 0.9);
-      --border-glow: #00e5ff;
-      --hud-gradient: linear-gradient(135deg, #0284c7, #0d9488);
-    }
-
-    body.girl-theme {
-      --primary: #ff2a85;
-      --secondary: #a855f7;
-      --accent: #fde047;
-      --bg: #1c092b;
-      --card-bg: rgba(43, 14, 68, 0.9);
-      --border-glow: #ff2a85;
-      --hud-gradient: linear-gradient(135deg, #ec4899, #8b5cf6);
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Fredoka', sans-serif;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      background-color: #030014;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      color: var(--text);
-      overflow: hidden;
-      transition: background 0.4s ease;
-    }
-
-    /* Mobile Device Outer Frame */
-    .mobile-wrapper {
-      width: 100%;
-      max-width: 420px;
-      height: 94vh;
-      max-height: 860px;
-      background: radial-gradient(circle at 50% 10%, #20134b 0%, var(--bg) 95%);
-      border: 4px solid #3b2d71;
-      border-radius: 40px;
-      box-shadow: 0 0 50px rgba(0, 240, 255, 0.25), 0 20px 40px rgba(0, 0, 0, 0.8);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.4s ease;
-    }
-
-    body.boy-theme .mobile-wrapper {
-      border-color: #0284c7;
-      box-shadow: 0 0 50px rgba(0, 229, 255, 0.3), 0 20px 40px rgba(0, 0, 0, 0.8);
-      background: radial-gradient(circle at 50% 10%, #0d274d 0%, var(--bg) 95%);
-    }
-
-    body.girl-theme .mobile-wrapper {
-      border-color: #d946ef;
-      box-shadow: 0 0 50px rgba(255, 42, 133, 0.3), 0 20px 40px rgba(0, 0, 0, 0.8);
-      background: radial-gradient(circle at 50% 10%, #3e1250 0%, var(--bg) 95%);
-    }
-
-    /* Phone Speaker & Camera Notch */
-    .notch {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 120px;
-      height: 18px;
-      background: #030014;
-      border-radius: 20px;
-      z-index: 100;
-    }
-
-    /* HUD / Top Bar */
-    .hud {
-      padding: 34px 16px 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(11, 8, 29, 0.7);
-      backdrop-filter: blur(10px);
-      border-bottom: 2px solid rgba(255, 255, 255, 0.08);
-      z-index: 10;
-    }
-
-    .pill-stat {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 5px 12px;
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      font-weight: 700;
-      font-size: 0.85rem;
-    }
-
-    .pill-stat.coins { color: var(--accent); border-color: var(--accent); }
-    .pill-stat.hp { color: #f43f5e; border-color: #f43f5e; }
-
-    .sos-btn {
-      background: linear-gradient(135deg, #ef4444, #991b1b);
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-weight: 700;
-      font-size: 0.75rem;
-      cursor: pointer;
-      box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
-      animation: pulse 1.5s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    /* Screens Container */
-    .screen {
-      flex: 1;
-      padding: 16px;
-      display: none;
-      flex-direction: column;
-      justify-content: space-between;
-      overflow-y: auto;
-    }
-
-    .screen.active {
-      display: flex;
-    }
-
-    /* Start / Menu Page */
-    .title-banner {
-      font-family: 'Titan One', cursive;
-      font-size: 2.5rem;
-      text-align: center;
-      margin-top: 15px;
-      background: linear-gradient(180deg, #ffe600 0%, var(--primary) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
-    }
-
-    .sub-banner {
-      text-align: center;
-      color: var(--secondary);
-      font-weight: 600;
-      font-size: 0.95rem;
-      margin-top: -4px;
-      margin-bottom: 12px;
-    }
-
-    /* Gender Toggle Box */
-    .gender-selector {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .gender-card {
-      flex: 1;
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px solid rgba(255, 255, 255, 0.15);
-      border-radius: 20px;
-      padding: 14px 10px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.25s ease;
-    }
-
-    .gender-card.active {
-      border-color: var(--border-glow);
-      background: rgba(255, 255, 255, 0.15);
-      box-shadow: 0 0 20px var(--border-glow);
-      transform: translateY(-3px);
-    }
-
-    .gender-icon {
-      font-size: 3rem;
-      display: block;
-      margin-bottom: 6px;
-    }
-
-    .gender-title {
-      font-size: 1rem;
-      font-weight: 700;
-    }
-
-    /* Name Input Box */
-    .input-box {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.08);
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      border-radius: 16px;
-      padding: 12px 16px;
-      color: white;
-      font-size: 1rem;
-      font-weight: 600;
-      outline: none;
-      margin-bottom: 16px;
-      text-align: center;
-    }
-
-    .input-box:focus {
-      border-color: var(--secondary);
-      box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
-    }
-
-    /* Gameplay Dialogue */
-    .dialogue-card {
-      background: var(--card-bg);
-      border: 2px solid var(--border-glow);
-      border-radius: 24px;
-      padding: 18px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(14px);
-    }
-
-    .character-avatar-hud {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .avatar-circle {
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 2rem;
-      border: 2px solid var(--border-glow);
-    }
-
-    .badge-tag {
-      display: inline-block;
-      background: var(--primary);
-      color: white;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 12px;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-    }
-
-    .scenario-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .scenario-desc {
-      font-size: 0.95rem;
-      line-height: 1.55;
-      color: #e2e8f0;
-    }
-
-    /* Decision Buttons */
-    .choices-container {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .choice-btn {
-      background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      border-radius: 18px;
-      padding: 14px 16px;
-      color: white;
-      font-weight: 600;
-      font-size: 0.92rem;
-      text-align: left;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
-    }
-
-    .choice-btn:active {
-      transform: scale(0.97);
-      border-color: var(--secondary);
-    }
-
-    .choice-icon {
-      font-size: 1.4rem;
-    }
-
-    /* Big Main Action Button */
-    .cta-btn {
-      background: var(--hud-gradient);
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      color: white;
-      font-family: 'Titan One', cursive;
-      font-size: 1.3rem;
-      padding: 16px;
-      border-radius: 25px;
-      cursor: pointer;
-      box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
-      width: 100%;
-      letter-spacing: 1px;
-      transition: transform 0.2s;
-    }
-
-    .cta-btn:active {
-      transform: scale(0.97);
-    }
-
-    /* Result Overlay Modal */
-    .modal-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(3, 0, 20, 0.94);
-      backdrop-filter: blur(12px);
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
-      z-index: 200;
-      text-align: center;
-    }
-
-    .modal-overlay.active { display: flex; }
-    .modal-icon { font-size: 4rem; margin-bottom: 10px; }
-    .modal-title { font-family: 'Titan One', cursive; font-size: 1.7rem; margin-bottom: 12px; }
-    .modal-lesson { font-size: 0.95rem; color: #e2e8f0; line-height: 1.5; margin-bottom: 24px; }
-
-    /* SOS Modal */
-    .sos-modal {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #17112c;
-      border-top: 3px solid #ef4444;
-      border-radius: 30px 30px 0 0;
-      padding: 22px;
-      display: none;
-      flex-direction: column;
-      gap: 12px;
-      z-index: 300;
-      box-shadow: 0 -10px 40px rgba(239, 68, 68, 0.4);
-    }
-    .sos-modal.active { display: flex; }
-    .hotline-card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 12px;
-      border-radius: 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>KIDVOCATE 3D â€” Child Rights Odyssey</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Titan+One&display=swap" rel="stylesheet">
+<style>
+:root{--cyan:#00eaff;--green:#00ff9d;--pink:#ff3fa4;--yellow:#ffe45c;--red:#ff426d;--bg:#050719;--panel:rgba(9,13,35,.88)}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Fredoka,sans-serif;user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:#030510;color:white}
+body{display:flex;align-items:center;justify-content:center}
+#app{position:relative;width:100%;max-width:520px;height:100dvh;overflow:hidden;background:#050719}
+#game{position:absolute;inset:0}
+canvas{display:block;width:100%;height:100%;touch-action:none}
+.glass{background:rgba(7,10,30,.72);border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.hud{position:absolute;top:0;left:0;right:0;padding:calc(env(safe-area-inset-top) + 16px) 16px 12px;z-index:10;display:flex;gap:8px;align-items:center;justify-content:space-between;background:linear-gradient(#030510dd,transparent)}
+.pill{height:40px;padding:0 13px;border-radius:22px;display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;white-space:nowrap}
+.hp{border-color:#ff426d55;color:#ff7390}.xp{border-color:#ffe45c55;color:#ffe45c}.level{border-color:#00eaff55;color:#00eaff}
+.sos{height:40px;border:0;border-radius:22px;padding:0 13px;background:linear-gradient(135deg,#ff466c,#b91643);color:#fff;font-weight:700;box-shadow:0 0 18px #ff426d66}
+.progress{position:absolute;top:78px;left:18px;right:18px;height:4px;background:#ffffff12;border-radius:9px;z-index:10;overflow:hidden}
+.progress i{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--green),var(--cyan));box-shadow:0 0 12px var(--cyan);transition:.35s}
+.menu,.victory{position:absolute;inset:0;z-index:30;padding:34px 20px 24px;display:flex;flex-direction:column;justify-content:space-between;text-align:center;background:radial-gradient(circle at 50% 10%,#24145ccc,#060718 62%,#030510)}
+.hidden{display:none!important}
+.brand{font-family:Titan One;font-size:clamp(2.45rem,11vw,3.5rem);line-height:.95;background:linear-gradient(180deg,#fff36a,#ff3c93 70%,#ff6b2c);-webkit-background-clip:text;color:transparent;filter:drop-shadow(0 5px 16px #ff3f9b55)}
+.tag{margin-top:8px;color:#54edff;font-weight:700;letter-spacing:1px;font-size:13px}
+.subtitle{margin:26px auto 0;max-width:380px;color:#dce6ff;font-size:16px;line-height:1.45}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.hero{padding:18px 10px;border-radius:24px;border:2px solid #ffffff18;background:#ffffff07;transition:.2s;cursor:pointer}
+.hero.selected{border-color:var(--cyan);background:#00eaff12;box-shadow:0 0 30px #00eaff22;transform:translateY(-4px)}
+.hero .emoji{font-size:54px;display:block;margin-bottom:7px}
+.hero b{display:block;font-size:17px}.hero small{color:#91a0bd}
+.start{width:100%;border:0;border-radius:20px;padding:17px;background:linear-gradient(100deg,var(--green),var(--cyan));color:#021018;font-family:Titan One;font-size:18px;box-shadow:0 0 35px #00eaff44}
+.start:active{transform:scale(.98)}
+.tip{margin-top:10px;color:#7f8ba9;font-size:12px}
+.joystick{position:absolute;z-index:12;left:18px;bottom:24px;width:126px;height:126px;border-radius:50%;background:#071027aa;border:2px solid #00eaff55;box-shadow:0 0 25px #00eaff1c;touch-action:none}
+.stick{position:absolute;width:54px;height:54px;left:34px;top:34px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#5ffff0,#00a9d7);box-shadow:0 0 22px #00eaff88;border:2px solid #ffffff55}
+.controls{position:absolute;z-index:11;right:16px;bottom:28px;display:flex;gap:8px;flex-direction:column;align-items:flex-end}
+.action{border:1px solid #ffffff22;background:#080d25cc;color:#fff;border-radius:15px;padding:10px 13px;font-weight:700;backdrop-filter:blur(10px)}
+.hint{position:absolute;left:50%;transform:translateX(-50%);bottom:17px;z-index:11;color:#b8c5e5;background:#070b20bb;border:1px solid #ffffff12;border-radius:18px;padding:7px 12px;font-size:11px;pointer-events:none;white-space:nowrap}
+.sheet{position:absolute;left:8px;right:8px;bottom:8px;z-index:20;padding:19px;border-radius:28px;border:1px solid #00eaff66;background:rgba(7,10,29,.94);backdrop-filter:blur(20px);box-shadow:0 -10px 40px #00eaff22;transform:translateY(120%);transition:.4s}
+.sheet.show{transform:translateY(0)}
+.badge{display:inline-block;padding:6px 10px;border-radius:20px;background:#00ff9d;color:#00150d;font-size:11px;font-weight:700;text-transform:uppercase}
+.sheet h2{font-size:22px;margin:10px 0 6px}.sheet p{color:#c6d0e8;line-height:1.45;font-size:14px;margin-bottom:14px}
+.choice{width:100%;padding:13px;text-align:left;border-radius:16px;margin-top:8px;border:1px solid #ffffff20;background:#ffffff09;color:#fff;font-weight:600;font-size:14px}.choice:active{background:#00eaff16;border-color:#00eaff}
+.modal{position:absolute;inset:0;z-index:40;display:none;align-items:center;justify-content:center;padding:24px;background:#02040ddd;backdrop-filter:blur(12px)}
+.modal.show{display:flex}.result{width:100%;padding:26px;border-radius:28px;text-align:center}.result .icon{font-size:58px}.result h2{font-family:Titan One;margin:10px 0;font-size:27px}.result p{color:#cbd5e1;line-height:1.5;font-size:14px;margin-bottom:20px}
+.sos-panel{position:absolute;z-index:50;left:8px;right:8px;bottom:8px;padding:20px;border-radius:28px;background:#160914f5;border:1px solid #ff426d88;display:none}.sos-panel.show{display:block}
+.help{display:flex;justify-content:space-between;align-items:center;background:#ffffff0d;border-radius:15px;padding:12px;margin-top:10px}.call{background:#ff426d;color:white;text-decoration:none;padding:8px 12px;border-radius:10px;font-weight:700}
+.close{margin-top:12px;width:100%;padding:11px;border:1px solid #ffffff22;border-radius:13px;background:#ffffff0b;color:white}
+.victory .trophy{font-size:80px}.victory .brand{font-size:2.3rem}.vault{margin:20px 0;padding:18px;border-radius:20px;text-align:left;line-height:1.9;color:#dce6ff}
+@media(min-width:700px){#app{height:94vh;border:3px solid #242c54;border-radius:34px;box-shadow:0 0 70px #00eaff22}}
+</style>
 </head>
-<body class="boy-theme">
+<body>
+<div id="app">
+  <div id="game"></div>
 
-  <div class="mobile-wrapper">
-    <div class="notch"></div>
+  <div class="hud">
+    <div class="pill glass hp">â¤ï¸ <span id="hp">100</span></div>
+    <div class="pill glass xp">â­ <span id="xp">0</span> XP</div>
+    <div class="pill glass level">L<span id="lv">1</span>/3</div>
+    <button class="sos" onclick="toggleSOS()">ðŸš¨ SOS</button>
+  </div>
+  <div class="progress"><i id="bar"></i></div>
 
-    <!-- HUD Bar -->
-    <div class="hud">
-      <div class="pill-stat hp">❤️ <span id="hp-val">100</span></div>
-      <div class="pill-stat coins">⭐ <span id="xp-val">0</span> XP</div>
-      <button class="sos-btn" onclick="toggleSos()">🚨 SOS</button>
-    </div>
-
-    <!-- Screen 1: Avatar & Gender Select Menu -->
-    <div class="screen active" id="start-screen">
-      <div>
-        <div class="title-banner">KIDVOCATE</div>
-        <div class="sub-banner">REAL-LIFE SURVIVAL & RIGHTS SIMULATOR</div>
-        
-        <p style="text-align: center; font-size: 0.9rem; color: #cbd5e1; margin-bottom: 12px;">
-          Choose your character to begin your story:
-        </p>
-
-        <!-- Gender Selection Cards -->
-        <div class="gender-selector">
-          <div class="gender-card active" id="gender-boy" onclick="selectGender('boy')">
-            <span class="gender-icon">👦⚡</span>
-            <div class="gender-title">BOY HERO</div>
-            <small style="color: #00e5ff; font-size: 0.75rem;">Cyber Guardian</small>
-          </div>
-          <div class="gender-card" id="gender-girl" onclick="selectGender('girl')">
-            <span class="gender-icon">👧✨</span>
-            <div class="gender-title">GIRL HERO</div>
-            <small style="color: #ff2a85; font-size: 0.75rem;">Solar Defender</small>
-          </div>
+  <section class="menu" id="menu">
+    <div>
+      <div class="brand">KIDVOCATE</div>
+      <div class="tag">3D CHILD RIGHTS ODYSSEY</div>
+      <div class="subtitle">Enter a playable world where every decision teaches you how to protect your rights.</div>
+      <div class="hero-grid">
+        <div class="hero selected" id="heroA" onclick="chooseHero('a')">
+          <span class="emoji">ðŸ›¡ï¸</span><b style="color:#00ff9d">NOVA</b><small>Cyber Guardian</small>
         </div>
-
-        <input type="text" id="player-name" class="input-box" placeholder="Enter Hero Name..." value="Alex">
-      </div>
-
-      <div>
-        <div style="background: rgba(255,255,255,0.06); padding: 14px; border-radius: 18px; margin-bottom: 16px; font-size: 0.85rem; line-height: 1.45; text-align: center;">
-          🕹️ Navigate real-world childhood dilemmas.<br>
-          Earn rights badges, defend your boundaries, and unlock legal protection shields!
-        </div>
-        <button class="cta-btn" onclick="startGame()">START ADVENTURE 🚀</button>
-      </div>
-    </div>
-
-    <!-- Screen 2: Narrative Game Episode -->
-    <div class="screen" id="game-screen">
-      <div>
-        <div class="character-avatar-hud">
-          <div class="avatar-circle" id="hud-avatar">👦</div>
-          <div>
-            <div style="font-weight: 700; font-size: 1.05rem;" id="hud-name">Alex</div>
-            <span class="badge-tag" id="q-tag">Category</span>
-          </div>
-        </div>
-
-        <div class="dialogue-card">
-          <h2 class="scenario-title" id="q-title">Episode Title</h2>
-          <p class="scenario-desc" id="q-desc">Situation narrative goes here...</p>
+        <div class="hero" id="heroB" onclick="chooseHero('b')">
+          <span class="emoji">âœ¨</span><b style="color:#ff63ba">LYRA</b><small>Rights Champion</small>
         </div>
       </div>
-
-      <div class="choices-container" id="choices-box">
-        <!-- Rendered dynamically -->
-      </div>
     </div>
-
-    <!-- Result / Feedback Modal -->
-    <div class="modal-overlay" id="result-modal">
-      <div class="modal-icon" id="res-icon">🛡️</div>
-      <div class="modal-title" id="res-title">DECISION RESULT</div>
-      <div class="modal-lesson" id="res-lesson">Rights explanation goes here...</div>
-      <button class="cta-btn" onclick="nextQuestion()">CONTINUE ➔</button>
+    <div>
+      <button class="start" onclick="startGame()">ENTER THE 3D WORLD â†’</button>
+      <div class="tip">Mobile: drag the joystick â€¢ Desktop: WASD / Arrow keys</div>
     </div>
+  </section>
 
-    <!-- Screen 3: Victory & Trophy Room -->
-    <div class="screen" id="victory-screen">
-      <div>
-        <div style="font-size: 4.5rem; text-align: center; margin: 15px 0;">🏆</div>
-        <div class="title-banner" style="font-size: 2.1rem;">SURVIVAL MASTER!</div>
-        <div class="sub-banner">You masterfully defended your rights!</div>
-      </div>
+  <div class="joystick" id="joy"><div class="stick" id="stick"></div></div>
+  <div class="controls">
+    <button class="action" onclick="centerPlayer()">ðŸŽ¯ Center</button>
+  </div>
+  <div class="hint" id="hint">Drag joystick to move</div>
 
-      <div style="background: rgba(255,255,255,0.06); padding: 18px; border-radius: 20px; text-align: center;">
-        <h3 style="color: var(--accent); margin-bottom: 10px;">Badges in Your Vault:</h3>
-        <p id="badges-list" style="font-size: 0.95rem; line-height: 1.8;">🛡️ Badge list here</p>
-      </div>
+  <section class="sheet" id="sheet">
+    <span class="badge" id="tag">LEVEL 1</span>
+    <h2 id="title"></h2><p id="desc"></p>
+    <div id="choices"></div>
+  </section>
 
-      <button class="cta-btn" onclick="restartGame()">RESTART STORY 🔄</button>
+  <div class="modal" id="modal">
+    <div class="result glass">
+      <div class="icon" id="rIcon">ðŸŒŸ</div><h2 id="rTitle"></h2><p id="rText"></p>
+      <button class="start" onclick="continueGame()">CONTINUE â†’</button>
     </div>
-
-    <!-- SOS Crisis Drawer -->
-    <div class="sos-modal" id="sos-drawer">
-      <h3 style="color: #ef4444;">🚨 24/7 Verified Emergency Helplines</h3>
-      <div class="hotline-card">
-        <div><strong>Childline (India)</strong><br><small>Emergency child rescue & protection</small></div>
-        <a href="tel:1098" style="background:#ef4444; color:white; padding:8px 14px; border-radius:10px; text-decoration:none; font-weight:700;">1098</a>
-      </div>
-      <div class="hotline-card">
-        <div><strong>National Cyber Crime</strong><br><small>Online harassment & extortion</small></div>
-        <a href="tel:1930" style="background:#ef4444; color:white; padding:8px 14px; border-radius:10px; text-decoration:none; font-weight:700;">1930</a>
-      </div>
-      <div class="hotline-card">
-        <div><strong>National Emergency</strong><br><small>All-in-one Police / Ambulance</small></div>
-        <a href="tel:112" style="background:#ef4444; color:white; padding:8px 14px; border-radius:10px; text-decoration:none; font-weight:700;">112</a>
-      </div>
-      <button class="cta-btn" style="background: #334155; border:none; padding:10px; font-size:1rem;" onclick="toggleSos()">Close</button>
-    </div>
-
   </div>
 
-  <script>
-    // Story Campaigns
-    const boyQuests = [
-      {
-        tag: "Right to Education & Freedom from Labor (RTE & CLPA)",
-        title: "The Workshop Coercion",
-        desc: "Your uncle visits your family and insists that you drop out of class 8 to work at his heavy auto garage for quick money, saying 'School books don't put food on the table for boys.'",
-        choices: [
-          {
-            text: "Accept the job. Working early shows toughness and earns fast cash.",
-            icon: "❌",
-            safe: false,
-            hp: -30,
-            xp: 0,
-            title: "CRITICAL LOSS!",
-            lesson: "Dangerous myth! Under Article 21A & Child Labor laws, every boy under 14 has the fundamental constitutional right to free school education, not hazardous manual labor."
-          },
-          {
-            text: "Politely refuse, speak with your school principal, and stand firm on studying.",
-            icon: "📚",
-            safe: true,
-            hp: 0,
-            xp: 100,
-            badge: "📚 Scholar's Armor Badge",
-            title: "RIGHT UPHELD!",
-            lesson: "Spot on! No relative or employer can deprive you of compulsory education. Your mind and future are your priority."
-          }
-        ]
-      },
-      {
-        tag: "Right to Mental Well-Being & Anti-Ragging",
-        title: "The Locker Room Hazing",
-        desc: "Older seniors corner you behind the sports field and demand you do their personal chores and endure rough slaps to 'prove you are man enough for the squad.'",
-        choices: [
-          {
-            text: "Endure the physical beating in silence so they don't call you weak.",
-            icon: "⚠️",
-            safe: false,
-            hp: -25,
-            xp: 0,
-            title: "HARMFUL SILENCE!",
-            lesson: "Suffering violence in silence is never courage. Hazing and physical abuse are illegal in educational institutions under anti-bullying laws."
-          },
-          {
-            text: "Walk away, report the perpetrators to the sports authority and counselor.",
-            icon: "🛡️",
-            safe: true,
-            hp: 0,
-            xp: 120,
-            badge: "🛡️ Iron Will Defender",
-            title: "TRUE STRENGTH!",
-            lesson: "Heroic choice! You have the right to bodily protection and dignity. Real courage is rejecting toxic violence and demanding safety."
-          }
-        ]
-      },
-      {
-        tag: "Right to Digital Safety & Anti-Exploitation",
-        title: "The Gaming Money Mule",
-        desc: "A streamer in your online multiplayer discord server asks to transfer money into your UPI/bank app to buy gaming items for a 'commission', asking for your login OTP.",
-        choices: [
-          {
-            text: "Share the OTP! Quick commissions mean free weapon skins.",
-            icon: "💸",
-            safe: false,
-            hp: -35,
-            xp: 0,
-            title: "CYBER CRIME TRAP!",
-            lesson: "You just acted as an illegal money mule for cyber fraudsters! You are personally liable for stolen money transferred through your accounts."
-          },
-          {
-            text: "Deny the request immediately, block the user, and report the server.",
-            icon: "⚡",
-            safe: true,
-            hp: 0,
-            xp: 150,
-            badge: "⚡ Cyber-Vigilance Shield",
-            title: "CYBER SHIELD ACTIVE!",
-            lesson: "Brilliant instinct! Financial manipulation in video games is a federal crime. Keep your digital identity and credentials locked."
-          }
-        ]
-      },
-      {
-        tag: "Right to Expression & Mental Health (UNCRC Art. 12 & 13)",
-        title: "The Burden of Silence",
-        desc: "You have been feeling overwhelming panic and sadness before exams, but friends tell you: 'Real boys don't cry or talk to doctors about feelings.'",
-        choices: [
-          {
-            text: "Suppress your panic completely and hide your emotions inside.",
-            icon: "🛑",
-            safe: false,
-            hp: -20,
-            xp: 0,
-            title: "EMOTIONAL HARM!",
-            lesson: "Bottling up severe anxiety damages mental health. Emotional expression is not weakness—it is a human right."
-          },
-          {
-            text: "Confide in a counselor or trusted elder and seek proper guidance.",
-            icon: "🌟",
-            safe: true,
-            hp: 0,
-            xp: 100,
-            badge: "🌟 Voice of Wisdom Badge",
-            title: "AUTHENTIC BRAVERY!",
-            lesson: "Every child has the right to mental health care and open emotional support without stigma or judgment."
-          }
-        ]
-      }
-    ];
+  <div class="sos-panel" id="sosPanel">
+    <h2 style="color:#ff6688">ðŸš¨ Emergency Support</h2>
+    <div class="help"><div><b>Child Helpline</b><br><small>24/7 child protection</small></div><a class="call" href="tel:1098">1098</a></div>
+    <div class="help"><div><b>Cyber Crime Helpline</b><br><small>Online financial/cyber crime</small></div><a class="call" href="tel:1930">1930</a></div>
+    <button class="close" onclick="toggleSOS()">Close</button>
+  </div>
 
-    const girlQuests = [
-      {
-        tag: "Right to Bodily Autonomy & POCSO Protection",
-        title: "The Uncomfortable Boundary",
-        desc: "A distant male relative visits during a festival and hugs you in an overly tight, uncomfortable way, whispering: 'Don't tell your mom, it's our affectionate secret.'",
-        choices: [
-          {
-            text: "Stay frozen and pretend everything is fine out of respect for elders.",
-            icon: "⚠️",
-            safe: false,
-            hp: -30,
-            xp: 0,
-            title: "DANGEROUS SECRECY!",
-            lesson: "You are never at fault, and nobody has permission to violate your personal space! Under the POCSO Act, any bad touch or inappropriate secret must be reported."
-          },
-          {
-            text: "Step back firmly, say 'NO', and immediately inform your parents.",
-            icon: "🔥",
-            safe: true,
-            hp: 0,
-            xp: 120,
-            badge: "🔥 Unbreakable Boundary Badge",
-            title: "ABSOLUTE COURAGE!",
-            lesson: "Your body is your territory alone! You have the complete legal and human right to safe touch and immediate family protection."
-          }
-        ]
-      },
-      {
-        tag: "Right to Equal Opportunity & Secondary Education",
-        title: "The Domestic Duty Dilemma",
-        desc: "Your family suggests you stop attending high school after class 10 to take care of full-time cooking and chores while your brother continues private coaching.",
-        choices: [
-          {
-            text: "Give up on your dream career and accept domestic confinement silently.",
-            icon: "❌",
-            safe: false,
-            hp: -25,
-            xp: 0,
-            title: "EQUALITY DENIED!",
-            lesson: "Gender discrimination in education is unconstitutional. Under Article 15 & UNCRC, girls have equal entitlement to full secondary education."
-          },
-          {
-            text: "Involve a mentor or teacher to explain your right to equal higher education.",
-            icon: "📖",
-            safe: true,
-            hp: 0,
-            xp: 130,
-            badge: "📖 Equality Vanguard Medal",
-            title: "FUTURE DEFENDED!",
-            lesson: "Incredible advocacy! You have the right to pursue whatever career and degree you desire. Education has no gender boundary."
-          }
-        ]
-      },
-      {
-        tag: "Right to Digital Privacy & Protection from Cyber Bullying",
-        title: "The Leaked Photo Threat",
-        desc: "A classmate who received a casual selfie from your social media threatens to edit it maliciously and post it on group chats unless you do his homework.",
-        choices: [
-          {
-            text: "Panic and do his homework every week hoping he will delete it.",
-            icon: "🛑",
-            safe: false,
-            hp: -30,
-            xp: 0,
-            title: "BLACKMAIL CYCLE!",
-            lesson: "Giving in to blackmail only increases harassment. Digital extortion and non-consensual image manipulation are serious cyber crimes."
-          },
-          {
-            text: "Capture screenshots as evidence, inform school authorities and call 1930.",
-            icon: "🛡️",
-            safe: true,
-            hp: 0,
-            xp: 140,
-            badge: "🛡️ Digital Sovereign Shield",
-            title: "CYBER CRIME SHIELD!",
-            lesson: "Magnificent move! Under the Information Technology Act, morphing, extortion, and cyber harassment carry severe criminal penalties."
-          }
-        ]
-      },
-      {
-        tag: "Right to Freedom of Movement & Public Safety",
-        title: "The Street Catcalling",
-        desc: "A group of older boys constantly loiters near the coaching center bus stop, making offensive comments and tracking the girls' timings.",
-        choices: [
-          {
-            text: "Stop going to tuition classes completely to avoid the street.",
-            icon: "⚠️",
-            safe: false,
-            hp: -20,
-            xp: 0,
-            title: "FREEDOM CURTAILED!",
-            lesson: "You should never have to sacrifice your education because of street harassers. Public spaces belong to everyone equally."
-          },
-          {
-            text: "Walk in groups, alert the coaching center head, and dial Childline (1098).",
-            icon: "🚨",
-            safe: true,
-            hp: 0,
-            xp: 110,
-            badge: "🚨 Guardian of Public Safety",
-            title: "COMMUNITY PROTECTED!",
-            lesson: "Outstanding vigilance! Stalking and harassment in public transit zones are strictly punishable offenses under IPC 354D."
-          }
-        ]
-      }
-    ];
+  <section class="victory hidden" id="victory">
+    <div>
+      <div class="trophy">ðŸ†</div>
+      <div class="brand">WORLD CLEARED</div>
+      <div class="tag">YOU ARE A RIGHTS CHAMPION</div>
+    </div>
+    <div class="vault glass"><b style="color:#00eaff">UNLOCKED</b><br><span id="vault"></span></div>
+    <button class="start" onclick="location.reload()">PLAY AGAIN â†»</button>
+  </section>
+</div>
 
-    // Game Variables
-    let selectedGender = "boy";
-    let activeQuests = boyQuests;
-    let currentIdx = 0;
-    let xp = 0;
-    let hp = 100;
-    let earnedBadges = [];
+<script>
+const stories={
+ a:[
+  {zone:"DIGITAL PRIVACY",title:"The Battle Royale Stranger",desc:"A gamer offers free credits but asks for your WhatsApp OTP, school name and home address.",choices:[
+   ["âŒ","Send everything for the free credits.",false,-30,0,"IDENTITY AT RISK!","Never share OTPs, passwords or your home address with strangers."],
+   ["ðŸ›¡ï¸","Block, report and tell a trusted adult.",true,0,100,"HEROIC REFLEX!","Protecting personal information is a core part of digital safety."]
+  ]},
+  {zone:"RIGHT TO EDUCATION",title:"The Garage Coercion",desc:"A relative pressures you to leave school and do hazardous vehicle work for quick money.",choices:[
+   ["âš ï¸","Accept the job and leave school.",false,-25,0,"EDUCATION SACRIFICED","Children have rights to education and protection from hazardous labour."],
+   ["ðŸ“š","Refuse and speak to a teacher or trusted adult.",true,0,120,"RIGHT PROTECTED!","Education and safety come before exploitative work."]
+  ]},
+  {zone:"SAFE SCHOOL",title:"The Locker Room Hazing",desc:"Older students demand slaps and heavy-bag carrying to prove you belong on the team.",choices:[
+   ["ðŸ›‘","Stay silent and endure it.",false,-25,0,"HARMFUL SILENCE","Bullying and physical abuse are never a test of strength."],
+   ["ðŸ›¡ï¸","Walk away and report it to a responsible adult.",true,0,150,"TRUE STRENGTH!","Speaking up helps protect you and other students."]
+  ]}
+ ],
+ b:[
+  {zone:"BODY AUTONOMY",title:"The Uncomfortable Secret",desc:"A relative makes you uncomfortable and says you must keep the interaction secret.",choices:[
+   ["âš ï¸","Stay quiet to avoid family conflict.",false,-30,0,"DANGEROUS SECRECY","If a touch or interaction feels unsafe, move away and tell a trusted adult."],
+   ["ðŸ”¥","Say NO, move away and tell a trusted adult.",true,0,120,"ROYAL COURAGE!","Your body belongs to you. Unsafe secrets should never be kept."]
+  ]},
+  {zone:"EQUAL EDUCATION",title:"The Domestic Confinement",desc:"Your family expects you to quit school while your brother continues his education.",choices:[
+   ["âŒ","Give up school and accept the decision.",false,-25,0,"EQUALITY DENIED","Education should not be restricted because of gender."],
+   ["ðŸ‘‘","Seek help from school and trusted adults.",true,0,130,"FUTURE PRESERVED!","Everyone deserves a fair opportunity to learn and grow."]
+  ]},
+  {zone:"CYBER PROTECTION",title:"The Blackmail Threat",desc:"Someone threatens to manipulate your photos and post them unless you pay money.",choices:[
+   ["ðŸ›‘","Pay secretly and hope it stops.",false,-30,0,"EXTORTION TRAP","Blackmail often escalates. Preserve evidence and seek trusted help."],
+   ["âœ¨","Save evidence, report it and seek cyber support.",true,0,150,"CYBER SHIELD!","Do not face online threats alone; preserve evidence and get help."]
+  ]}
+]};
 
-    function selectGender(gender) {
-      selectedGender = gender;
-      const boyCard = document.getElementById('gender-boy');
-      const girlCard = document.getElementById('gender-girl');
+let hero='a',story=stories.a,level=0,hp=100,xp=0,badges=[];
+let scene,camera,renderer,player,portal,clock=new THREE.Clock();
+let keys={},joyX=0,joyY=0,moving=false,encounter=false;
+const app=document.getElementById('app'),game=document.getElementById('game');
 
-      if (gender === 'boy') {
-        boyCard.classList.add('active');
-        girlCard.classList.remove('active');
-        document.body.className = "boy-theme";
-        document.getElementById('hud-avatar').innerText = "👦";
-      } else {
-        girlCard.classList.add('active');
-        boyCard.classList.remove('active');
-        document.body.className = "girl-theme";
-        document.getElementById('hud-avatar').innerText = "👧";
-      }
-    }
+function init3D(){
+ scene=new THREE.Scene(); scene.background=new THREE.Color(0x030719);
+ scene.fog=new THREE.FogExp2(0x030719,.028);
+ camera=new THREE.PerspectiveCamera(55,app.clientWidth/app.clientHeight,.1,300);
+ renderer=new THREE.WebGLRenderer({antialias:true});
+ renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(app.clientWidth,app.clientHeight);
+ game.appendChild(renderer.domElement);
 
-    function startGame() {
-      const nameInput = document.getElementById('player-name').value.trim() || (selectedGender === 'boy' ? 'Alex' : 'Maya');
-      document.getElementById('hud-name').innerText = nameInput;
+ scene.add(new THREE.HemisphereLight(0x9eeaff,0x08091d,1.2));
+ const dl=new THREE.DirectionalLight(0xffffff,1.2);dl.position.set(4,10,6);scene.add(dl);
 
-      activeQuests = (selectedGender === 'boy') ? boyQuests : girlQuests;
-      currentIdx = 0;
-      xp = 0;
-      hp = 100;
-      earnedBadges = [];
+ const road=new THREE.Mesh(new THREE.PlaneGeometry(14,220),new THREE.MeshStandardMaterial({color:0x101936,roughness:.7}));
+ road.rotation.x=-Math.PI/2;road.position.z=-75;scene.add(road);
+ const edgeMat=new THREE.MeshBasicMaterial({color:0x00d9ff});
+ [-6.5,6.5].forEach(x=>{let e=new THREE.Mesh(new THREE.BoxGeometry(.08,.05,220),edgeMat);e.position.set(x,.03,-75);scene.add(e)});
+ for(let z=5;z>-215;z-=5){let s=new THREE.Mesh(new THREE.BoxGeometry(.22,.04,1.7),new THREE.MeshBasicMaterial({color:0x39dfff}));s.position.set(0,.04,z);scene.add(s)}
 
-      document.getElementById('xp-val').innerText = xp;
-      document.getElementById('hp-val').innerText = hp;
+ for(let i=0;i<34;i++){
+   let h=1+Math.random()*6,w=.5+Math.random()*1.5;
+   let b=new THREE.Mesh(new THREE.BoxGeometry(w,h,w),new THREE.MeshStandardMaterial({color:0x07132f,emissive:0x071c48,emissiveIntensity:.8}));
+   b.position.set((Math.random()<.5?-1:1)*(8+Math.random()*8),h/2-0.1,-i*7-Math.random()*5);scene.add(b);
+ }
+ const starGeo=new THREE.BufferGeometry(),pts=[];
+ for(let i=0;i<500;i++)pts.push((Math.random()-.5)*80,Math.random()*28,(Math.random()-.5)*180-70);
+ starGeo.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));
+ scene.add(new THREE.Points(starGeo,new THREE.PointsMaterial({color:0x7fefff,size:.07})));
 
-      document.getElementById('start-screen').classList.remove('active');
-      document.getElementById('game-screen').classList.add('active');
-
-      loadQuest();
-    }
-
-    function loadQuest() {
-      const q = activeQuests[currentIdx];
-      document.getElementById('q-tag').innerText = q.tag;
-      document.getElementById('q-title').innerText = `Episode ${currentIdx + 1}: ${q.title}`;
-      document.getElementById('q-desc').innerText = q.desc;
-
-      const container = document.getElementById('choices-box');
-      container.innerHTML = '';
-
-      q.choices.forEach((c) => {
-        const btn = document.createElement('button');
-        btn.className = 'choice-btn';
-        btn.innerHTML = `<span class="choice-icon">${c.icon}</span> <span>${c.text}</span>`;
-        btn.onclick = () => selectChoice(c);
-        container.appendChild(btn);
-      });
-    }
-
-    function selectChoice(c) {
-      xp += c.xp;
-      hp += c.hp;
-      if (hp < 0) hp = 0;
-
-      document.getElementById('xp-val').innerText = xp;
-      document.getElementById('hp-val').innerText = hp;
-
-      if (c.badge && !earnedBadges.includes(c.badge)) {
-        earnedBadges.push(c.badge);
-      }
-
-      const modal = document.getElementById('result-modal');
-      const icon = document.getElementById('res-icon');
-      const title = document.getElementById('res-title');
-      const lesson = document.getElementById('res-lesson');
-
-      icon.innerText = c.safe ? "🌟" : "🛑";
-      title.innerText = c.title;
-      title.style.color = c.safe ? "var(--secondary)" : "#ef4444";
-      lesson.innerText = c.lesson;
-
-      modal.classList.add('active');
-    }
-
-    function nextQuestion() {
-      document.getElementById('result-modal').classList.remove('active');
-      currentIdx++;
-      if (currentIdx < activeQuests.length) {
-        loadQuest();
-      } else {
-        document.getElementById('game-screen').classList.remove('active');
-        document.getElementById('victory-screen').classList.add('active');
-        document.getElementById('badges-list').innerHTML = earnedBadges.join('<br>') || "🌟 Completed Basic Rights Training!";
-      }
-    }
-
-    function restartGame() {
-      document.getElementById('victory-screen').classList.remove('active');
-      document.getElementById('start-screen').classList.add('active');
-    }
-
-    function toggleSos() {
-      const drawer = document.getElementById('sos-drawer');
-      drawer.classList.toggle('active');
-    }
-  </script>
+ portal=new THREE.Group();
+ for(let i=0;i<3;i++){
+   let ring=new THREE.Mesh(new THREE.TorusGeometry(2.2,.16,16,48),new THREE.MeshBasicMaterial({color:[0x00ff9d,0x00d9ff,0xff3fa4][i]}));
+   ring.rotation.y=Math.PI/2;ring.position.z=-18-i*28;portal.add(ring);
+ }
+ scene.add(portal); createPlayer();
+ window.addEventListener('resize',resize); animate();
+}
+function createPlayer(){
+ player=new THREE.Group();
+ const body=new THREE.Mesh(new THREE.BoxGeometry(1.05,1.2,.62),new THREE.MeshStandardMaterial({color:hero==='a'?0xeafaff:0xf5c7ee,emissive:hero==='a'?0x082c36:0x24071e,emissiveIntensity:.4}));
+ body.position.y=1.45;player.add(body);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(.45,20,20),new THREE.MeshStandardMaterial({color:0xf2c6ad}));
+ head.position.y=2.45;player.add(head);
+ const hair=new THREE.Mesh(new THREE.SphereGeometry(.47,20,20),new THREE.MeshStandardMaterial({color:hero==='a'?0x12233f:0x7d3d1e}));
+ hair.scale.y=.55;hair.position.y=2.75;player.add(hair);
+ for(let x of [-.32,.32]){let leg=new THREE.Mesh(new THREE.CylinderGeometry(.16,.16,.9,12),new THREE.MeshStandardMaterial({color:0x172447}));leg.position.set(x,.45,0);player.add(leg)}
+ for(let x of [-.7,.7]){let arm=new THREE.Mesh(new THREE.CylinderGeometry(.13,.13,.85,12),new THREE.MeshStandardMaterial({color:body.material.color}));arm.position.set(x,1.5,0);arm.rotation.z=x>0?-.08:.08;player.add(arm)}
+ const core=new THREE.Mesh(new THREE.CircleGeometry(.16,20),new THREE.MeshBasicMaterial({color:hero==='a'?0x00ff9d:0xff3fa4}));
+ core.position.set(0,1.5,.32);player.add(core);
+ player.position.set(0,0,7);scene.add(player);
+}
+function animate(){
+ requestAnimationFrame(animate); const dt=Math.min(clock.getDelta(),.05);
+ if(!encounter){
+   let x=(keys.ArrowRight||keys.d?1:0)-(keys.ArrowLeft||keys.a?1:0)+joyX;
+   let z=(keys.ArrowDown||keys.s?1:0)-(keys.ArrowUp||keys.w?1:0)+joyY;
+   const len=Math.hypot(x,z); if(len){x/=Math.max(1,len);z/=Math.max(1,len);player.position.x+=x*dt*6;player.position.z+=z*dt*6;player.position.x=Math.max(-5.3,Math.min(5.3,player.position.x));player.position.z=Math.min(8,Math.max(-82,player.position.z));player.rotation.y=Math.atan2(x,z);player.position.y=Math.sin(performance.now()/100)*.025}
+   const target=new THREE.Vector3(player.position.x,3.3,player.position.z+7);
+   camera.position.lerp(target,.09);camera.lookAt(player.position.x,1.5,player.position.z-4);
+   const next=-(level*28+18);
+   if(player.position.z<next+.8 && level<3) openEncounter();
+ }
+ portal.children.forEach((r,i)=>{r.rotation.z+=dt*(.7+i*.25);r.rotation.x=Math.sin(performance.now()/1200+i)*.15});
+ renderer.render(scene,camera);
+}
+function chooseHero(h){hero=h;story=h==='a'?stories.a:stories.b;document.querySelectorAll('.hero').forEach(x=>x.classList.remove('selected'));document.getElementById(h==='a'?'heroA':'heroB').classList.add('selected');if(player){scene.remove(player);createPlayer()}}
+function startGame(){document.getElementById('menu').classList.add('hidden');level=0;hp=100;xp=0;badges=[];updateHUD();player.position.set(0,0,7);encounter=false}
+function openEncounter(){if(encounter)return;encounter=true;document.getElementById('sheet').classList.add('show');const e=story[level];document.getElementById('tag').textContent=`LEVEL ${level+1} â€¢ ${e.zone}`;document.getElementById('title').textContent=e.title;document.getElementById('desc').textContent=e.desc;const box=document.getElementById('choices');box.innerHTML='';e.choices.forEach(c=>{let b=document.createElement('button');b.className='choice';b.innerHTML=`${c[0]} &nbsp; ${c[1]}`;b.onclick=()=>choose(c);box.appendChild(b)})}
+function choose(c){document.getElementById('sheet').classList.remove('show');hp=Math.max(0,hp+c[3]);xp+=c[4];if(c[5]&&c[2])badges.push(c[5]);updateHUD();document.getElementById('rIcon').textContent=c[2]?'ðŸŒŸ':'ðŸ›‘';document.getElementById('rTitle').textContent=c[5];document.getElementById('rTitle').style.color=c[2]?'#00ff9d':'#ff426d';document.getElementById('rText').textContent=c[6];document.getElementById('modal').classList.add('show')}
+function continueGame(){document.getElementById('modal').classList.remove('show');level++;if(level>=3){document.getElementById('victory').classList.remove('hidden');document.getElementById('vault').innerHTML=badges.length?badges.map(x=>'ðŸ… '+x).join('<br>'):'ðŸ† Rights Champion';encounter=true;return}encounter=false;player.position.set(0,0,Math.min(player.position.z+3,7));updateHUD()}
+function updateHUD(){document.getElementById('hp').textContent=hp;document.getElementById('xp').textContent=xp;document.getElementById('lv').textContent=Math.min(level+1,3);document.getElementById('bar').style.width=(level/3*100)+'%'}
+function toggleSOS(){document.getElementById('sosPanel').classList.toggle('show')}
+function centerPlayer(){player.position.x=0}
+function resize(){camera.aspect=app.clientWidth/app.clientHeight;camera.updateProjectionMatrix();renderer.setSize(app.clientWidth,app.clientHeight)}
+document.addEventListener('keydown',e=>{keys[e.key]=true});document.addEventListener('keyup',e=>{keys[e.key]=false});
+const joy=document.getElementById('joy'),stick=document.getElementById('stick');let joyId=null;
+function joyMove(e){if(e.pointerId!==joyId)return;const r=joy.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy,max=36,l=Math.hypot(dx,dy);if(l>max){dx=dx/l*max;dy=dy/l*max}stick.style.transform=`translate(${dx}px,${dy}px)`;joyX=dx/max;joyY=dy/max}
+joy.addEventListener('pointerdown',e=>{joyId=e.pointerId;joy.setPointerCapture(e.pointerId);joyMove(e);e.preventDefault()});
+joy.addEventListener('pointermove',joyMove);
+function joyEnd(e){if(e.pointerId!==joyId)return;joyId=null;joyX=joyY=0;stick.style.transform='translate(0,0)'}
+joy.addEventListener('pointerup',joy.addEventListener('pointerup',joyEnd);joy.addEventListener('pointercancel',joyEnd);
+init3D();
+</script>
 </body>
 </html>
